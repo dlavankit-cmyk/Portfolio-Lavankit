@@ -1,5 +1,8 @@
 import Lenis from "lenis";
 
+export const SCROLL_LERP = 0.07;
+export const SCROLL_WHEEL_MULTIPLIER = 0.8;
+
 let lenis: Lenis | null = null;
 
 /**
@@ -8,7 +11,11 @@ let lenis: Lenis | null = null;
  */
 export function initSmoothScroll() {
   if (lenis || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  lenis = new Lenis({ lerp: 0.07, wheelMultiplier: 0.8, smoothWheel: true });
+  lenis = new Lenis({
+    lerp: SCROLL_LERP,
+    wheelMultiplier: SCROLL_WHEEL_MULTIPLIER,
+    smoothWheel: true,
+  });
   const raf = (time: number) => {
     lenis?.raf(time);
     requestAnimationFrame(raf);

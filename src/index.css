@@ -362,3 +362,11 @@ html.has-custom-cursor * {
     display: none;
   }
 }
+
+/* Soft edges on the moving testimonial row in either theme. */
+.testimonial-ticker {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+  scrollbar-width: none;
+}
+.testimonial-ticker::-webkit-scrollbar { display: none; }
