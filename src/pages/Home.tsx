@@ -8,6 +8,7 @@ import type { PlanetKind } from "../intro/dither/objects";
 import { Typewriter } from "../components/Typewriter";
 import { FloatingHeader, ThemeToggle, useTheme } from "../components/blocks";
 import { LOAD_BLUR, LOAD_DURATION, STAGGER } from "../components/PageInteractions";
+import { aeSaeProject } from "../content/aeSaeProject";
 import { nurseProject } from "../content/nurseProject";
 import { aeSaeCaseStudyHref, caseStudyHref } from "../router";
 import { lockSmoothScroll, scrollToId, unlockSmoothScroll } from "../smoothScroll";
@@ -55,9 +56,8 @@ const projects: Project[] = [
   },
   {
     label: "Clinical Trials",
-    title: "Designed an AI alert that flags patient risks within seconds, with a full report.",
-    description:
-      "An early warning system that spots patient safety risks across clinical trial visits before they become serious.",
+    title: aeSaeProject.title,
+    description: aeSaeProject.description,
     href: aeSaeCaseStudyHref,
     planet: "moon",
   },
