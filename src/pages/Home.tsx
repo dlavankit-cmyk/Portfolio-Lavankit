@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type MouseEvent } from "react";
 import { Mouse } from "lucide-react";
+import { Testimonials } from "../components/Testimonials";
 import { HoverReveal } from "../components/HoverReveal";
 import { NoiseTexture } from "../components/NoiseTexture";
 import { PlanetCanvas } from "../components/PlanetCanvas";
@@ -390,6 +391,8 @@ export default function Home({
             ))}
           </div>
         </section>
+
+        <Testimonials className={blurClass} visible={projectsRevealed} />
 
         {/* Footer */}
         <footer data-fade className={`${blurClass} flex flex-col gap-5 pt-[30px]`}>
