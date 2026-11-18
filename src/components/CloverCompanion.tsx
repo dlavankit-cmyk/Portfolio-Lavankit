@@ -1,9 +1,20 @@
-import { useEffect, useState } from 'react';
+import { Component, useEffect, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { BotAvatar } from 'bot-avatars';
 import { cloverMarkup } from './cloverMarkup';
 import { startCloverRuntime } from './cloverRuntime';
 import './cloverCompanion.css';
+
+// Optional decoration must never take down the page when rendering fails.
+export class CloverBoundary extends Component<{children: ReactNode}, {failed: boolean}> {
+  state = {failed: false};
+  static getDerivedStateFromError() { return {failed: true}; }
+  componentDidCatch(error: Error) {
+    console.error('Clover companion unavailable', error);
+    document.querySelector<HTMLElement>('[data-clover-companion]')?.setAttribute('hidden', '');
+  }
+  render() { return this.state.failed ? null : this.props.children; }
+}
 
 // Keep the host outside routed pages so position, mood and hat survive navigation.
 function companionHost() {
@@ -25,9 +36,9 @@ export default function CloverCompanion() {
   const [pose, setPose] = useState({ yaw: 0, pitch: 0, roll: 0 });
   useEffect(() => {
     const host = companionHost();
-    const pet = host.querySelector<HTMLElement>('[data-site-pet]')!;
-    setSlot(host.querySelector<HTMLElement>('[data-clover-art]'));
-    const hit = host.querySelector<HTMLButtonElement>('[data-pet-hit]')!;
+    const pet = document.querySelector<HTMLElement>('[data-site-pet]')!;
+    setSlot(document.querySelector<HTMLElement>('[data-clover-art]'));
+    const hit = document.querySelector<HTMLButtonElement>('[data-pet-hit]')!;
     const keyboardPet = (e: KeyboardEvent) => {
       if (e.key !== 'Enter' && e.key !== ' ') return;
       e.preventDefault();

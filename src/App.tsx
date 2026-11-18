@@ -3,7 +3,7 @@ import { CustomCursor } from "./components/CustomCursor";
 import { PageInteractions } from "./components/PageInteractions";
 import CaseStudy from "./pages/CaseStudy";
 import AeSaeCaseStudy from "./pages/AeSaeCaseStudy";
-import CloverCompanion from "./components/CloverCompanion";
+import CloverCompanion, { CloverBoundary } from "./components/CloverCompanion";
 import Home from "./pages/Home";
 import { useRoute, type Route } from "./router";
 import { initSmoothScroll } from "./smoothScroll";
@@ -62,7 +62,7 @@ export default function App() {
       >
         {page}
       </PageInteractions>
-      {(homeReady || route !== "home") && <CloverCompanion />}
+      {(homeReady || route !== "home") && <CloverBoundary><CloverCompanion /></CloverBoundary>}
       <CustomCursor caseStudy={route !== "home"} />
     </>
   );
