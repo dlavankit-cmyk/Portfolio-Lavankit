@@ -1,3 +1,4 @@
+import { sampleHeroEntrance, paintHeroPose } from "./heroMotion";
 // Adapted from megany128/portfolio SitePet.astro at 8aa5ecf65352f93ab4ddff07473c7cf85c8ef186.
 
   /*
@@ -47,11 +48,11 @@
     let groundBase = window.innerHeight;
     function measureGroundBase() {
       const a = anchorEl();
-      groundBase = (a ? a.getBoundingClientRect().bottom : window.innerHeight) - 32;
+      groundBase = (a ? a.getBoundingClientRect().bottom : window.innerHeight) - 6;
     }
 
-    const PET_W = 64;
-    const PET_H = 72;
+    const PET_W = 72;
+    const PET_H = 90;
     const _MARGIN_R = 12;
     const SPEED = 34; // px / sec
 
@@ -94,7 +95,7 @@
     const DIZZY_PHRASES = ["whoaa....", "ugh.", "...stars", "head spinny"];
     const IDLE_PHRASES = [
       "hi there",
-      "just floating",
+      "friendly neighborhood patrol",
       "dum de dum",
       "anyone there?",
       "hmm",
@@ -265,7 +266,7 @@
       "aaand down we go",
     ];
 
-    let x = 40;
+    let x = Math.max(8, Math.min(document.documentElement.clientWidth - PET_W - 8, window.innerWidth * .73));
     let y = 0; // height above ground, px
     let yVel = 0; // vertical velocity (px/sec) — gravity-based
     let xVel = 0; // horizontal launch velocity after a throw
@@ -707,6 +708,21 @@
       }
     }
 
+    // One entrance per tab session. The existing loop owns all animation.
+    let entryDone = !!reduced;
+    try { entryDone ||= sessionStorage.getItem("hero:entered") === "1"; } catch {}
+    let entryStartedAt: number | null = null;
+    let entryWalkAt = 0;
+    let gaitPhase = 0;
+    let lastPoseX = x;
+    let landingAt = -1000;
+    const web = document.querySelector<HTMLElement>("[data-hero-web]");
+    const webAnchorX = x + 56 * .9;
+    let releaseWebLength = 0;
+    const firstPet = el();
+    firstPet?.setAttribute("data-entry", entryDone ? "walking" : "waiting");
+    if (entryDone && web) web.hidden = true;
+
     let petRafId = 0;
 
     function tick(now: number) {
@@ -718,6 +734,38 @@
         return;
       }
       measureGroundBase();
+      // Wait for the portfolio's existing intro to finish before entering.
+      if (!entryDone) {
+        if (window.__introActive) { petRafId = requestAnimationFrame(tick); return; }
+        if (entryStartedAt === null) entryStartedAt = now;
+        const elapsed = now - entryStartedAt;
+        const pose = sampleHeroEntrance(elapsed, groundBase);
+        if (pet.dataset.entry !== pose.stage) pet.dataset.entry = pose.stage;
+        if (pose.stage !== "walking") {
+          x = webAnchorX - 56 * .9 + pose.sway;
+          y = groundBase - pose.feet;
+          pet.style.setProperty("--pet-x", `${x}px`);
+          pet.style.setProperty("--pet-y", `${y}px`);
+          pet.style.setProperty("--pet-ground", "0px");
+          pet.style.setProperty("--hero-sway", `${pose.sway * .6}deg`);
+          paintHeroPose(pet, 0, false, pose.compression, pose.tethered || pose.stage === "falling", !!reduced);
+          if (web) {
+            const handY = Math.max(0, pose.feet - PET_H + 4);
+            if (pose.tethered) releaseWebLength = handY;
+            web.style.left = `${webAnchorX}px`;
+            web.style.height = `${(pose.tethered ? handY : releaseWebLength * pose.web)}px`;
+            web.style.transform = `rotate(${-Math.atan2(pose.sway, Math.max(1, handY))*180/Math.PI}deg)`;
+            web.hidden = pose.web <= 0;
+          }
+          petRafId = requestAnimationFrame(tick);
+          return;
+        }
+        entryDone = true;
+        entryWalkAt = now;
+        y = 0; yVel = 0; lastPoseX = x;
+        if (web) web.hidden = true;
+        try { sessionStorage.setItem("hero:entered", "1"); } catch {}
+      }
       measureGround();
       pet.style.setProperty("--pet-ground", `${groundOffset}px`);
       const now2 = now;
@@ -730,7 +778,7 @@
       }
 
       if (!hovered && !dragging && !reduced && !inDizzy) {
-        const step = SPEED * (dt / 1000);
+        const step = SPEED * (dt / 1000) * Math.min(1, (now - entryWalkAt) / 500);
         // Use ledge walls when perched, otherwise normal walls.
         const wL = currentLedge ? ledgeLeftWall : leftWall;
         const wR = currentLedge ? ledgeRightWall : rightWall;
@@ -856,6 +904,7 @@
           }
 
           if (y <= 0) {
+            if (yVel < -160 && !reduced) landingAt = now;
             // Reset dizzy timer on first landing so full effect plays on ground
             if (dizzy && yVel < -100) dizzyUntil = performance.now() + 2200;
             y = 0;
@@ -871,6 +920,13 @@
       pet.style.setProperty("--pet-x", `${x}px`);
       pet.style.setProperty("--pet-y", `${y}px`);
       pet.style.setProperty("--pet-flip", dir === 1 ? "1" : "-1");
+      const moving = !hovered && !dragging && !inDizzy && y < 2 && !reduced;
+      if (moving) gaitPhase += Math.abs(x - lastPoseX) / 26 * Math.PI * 2;
+      lastPoseX = x;
+      const landT = now - landingAt;
+      const compression = landT < 90 ? landT / 90 : landT < 520 ? (1 - (landT - 90) / 430) : 0;
+      paintHeroPose(pet, gaitPhase, moving, Math.max(0, compression), dragging || y > 8, !!reduced);
+      if (pet.dataset.moving !== String(moving)) pet.dataset.moving = String(moving);
 
       // Eye tracking toward the cursor.
       // Pet position is known from x, y, groundOffset — no need for getBoundingClientRect().
@@ -928,7 +984,7 @@
           isScrolling = false;
         }, 150);
 
-        if (reduced || dragging || currentLedge) {
+        if (!entryDone || reduced || dragging || currentLedge) {
           lastScrollY = window.scrollY;
           return;
         }
@@ -1012,7 +1068,7 @@
       });
 
       hit.addEventListener("pointerdown", (e) => {
-        if (e.button !== undefined && e.button !== 0) return;
+        if (!entryDone || (e.button !== undefined && e.button !== 0)) return;
         pressActive = true;
         pressStart = { x: e.clientX, y: e.clientY, t: performance.now() };
         dragPointerId = e.pointerId;
@@ -1298,7 +1354,7 @@
         const delay = 18000 + Math.random() * 16000;
         idleTimeoutId = window.setTimeout(() => {
           const now = Date.now();
-          if (!hovered && !dragging && !dizzy && now - lastIdleQuipAt >= 15_000) {
+          if (entryDone && !hovered && !dragging && !dizzy && now - lastIdleQuipAt >= 15_000) {
             saySomething(pet, idlePool(), 2200);
             lastIdleQuipAt = now;
           }
