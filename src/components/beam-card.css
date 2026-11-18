@@ -4,9 +4,9 @@
 .sae-compare {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 40px;            /* keep >= 32px so the two glows don't muddy each other */
-  padding: 48px;        /* room for the glow to bleed outside the cards */
-  overflow: visible;    /* never clip the glow */
+  gap: 40px;
+  padding: 48px;
+  overflow: visible;
 }
 @media (max-width: 720px) {
   .sae-compare { grid-template-columns: 1fr; gap: 32px; padding: 32px 20px; }
@@ -17,7 +17,7 @@
   --radius: 28px;
   --ring: 3px;          /* beam thickness */
   --ring-blur: 4px;     /* softness of the beam edge */
-  --glow-blur: 28px;    /* softness of the outer halo; raise for more blur */
+  --glow-blur: 28px;    /* softness of the inset halo */
   --speed: 6s;          /* one full lap */
   --beam-strength: 0.7;
 
@@ -33,6 +33,9 @@
   position: relative;
   border-radius: var(--radius);
   min-height: 180px;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--surface);
 }
 
 /* dark theme: explicit prop, or the OS setting when no prop is passed */
@@ -61,7 +64,7 @@
 .beam-card[data-color="green"] { --beam-rgb: var(--green-rgb); }
 
 /* shared comet-shaped gradient that rotates around the card */
-.beam-glow,
+.beam-glow-ring,
 .beam-ring {
   position: absolute;
   inset: 0;
@@ -79,13 +82,22 @@
   animation-play-state: var(--beam-state, running);
 }
 
-/* outer halo: heavily blurred, sits behind the card surface */
+/* A blurred ring above the surface, clipped to the card's rounded interior. */
 .beam-glow {
-  z-index: 0;
-  inset: -6px;
-  border-radius: calc(var(--radius) + 6px);
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
   filter: blur(var(--glow-blur));
   opacity: calc(var(--beam-strength) * var(--glow-opacity));
+}
+.beam-glow-ring {
+  padding: 26px;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
 }
 
 /* soft beam on the border: the blur lives on the wrapper because CSS applies
@@ -109,12 +121,12 @@
 
 .beam-surface {
   position: relative;
-  z-index: 1;
+  z-index: 3;
   box-sizing: border-box;
   height: 100%;
   padding: 36px 40px;
   border-radius: inherit;
-  background: var(--surface);
+  background: transparent;
   border: 1px solid var(--surface-border);
 }
 .beam-surface h3 {
@@ -133,7 +145,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .beam-glow, .beam-ring { animation: none; --beam-angle: 300deg; }
+  .beam-glow-ring, .beam-ring { animation: none; --beam-angle: 300deg; }
 }
 
 .sae-comparison-frame { container-type: inline-size; }

@@ -26,7 +26,9 @@ export function BeamCard({
 
   return (
     <div className="beam-card" data-color={color} data-theme={theme} style={style}>
-      <span className="beam-glow" aria-hidden="true" />
+      <span className="beam-glow" aria-hidden="true">
+        <span className="beam-glow-ring" />
+      </span>
       <span className="beam-ring-blur" aria-hidden="true">
         <span className="beam-ring" />
       </span>
