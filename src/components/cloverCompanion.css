@@ -590,3 +590,12 @@
   .site-pet__hit,.hero-head {transition:none;}
   .hero-web {display:none;}
 }
+
+/* The volumetric renderer owns yaw. A CSS mirror would flatten its turn. */
+.site-pet__hit {transform:none !important;}
+.hero-volume {position:absolute;inset:0;width:72px;height:90px;pointer-events:none;}
+.hero-fallback {display:block;}
+.hero-volume-ready .hero-fallback {visibility:hidden;}
+[data-clover-art]:not(.hero-volume-ready) .hero-fallback {transform:scaleX(var(--pet-flip));}
+.hero-volume {opacity:0;}
+.hero-volume-ready .hero-volume {opacity:1;}

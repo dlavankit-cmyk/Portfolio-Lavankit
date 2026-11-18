@@ -1,3 +1,4 @@
+import { paintHeroVolume } from "./heroVolume";
 export type EntryStage = 'descending' | 'hanging' | 'falling' | 'landing' | 'walking';
 const clamp = (v:number, lo:number, hi:number) => Math.max(lo,Math.min(hi,v));
 const smooth = (p:number) => p*p*(3-2*p);
@@ -77,4 +78,5 @@ export function paintHeroPose(pet:HTMLElement, phase:number, moving:boolean, cro
     previous[key] = rendered;
   }
   previousValues.set(pet, previous);
+  paintHeroVolume(pet, values, reduced);
 }

@@ -21,7 +21,7 @@ function companionHost() {
   if (!host) {
     host = document.createElement('div');
     host.dataset.cloverCompanion = '';
-    host.innerHTML = '<div class="hero-web" data-hero-web aria-hidden="true"></div>' + cloverMarkup.replace('Pet Clover;', 'Pet your friendly neighborhood companion;').replace('<span data-clover-art></span>', '<span data-clover-art>' + heroArtwork + '</span>');
+    host.innerHTML = '<div class="hero-web" data-hero-web aria-hidden="true"></div>' + cloverMarkup.replace('Pet Clover;', 'Pet your friendly neighborhood companion;').replace('<span data-clover-art></span>', '<span data-clover-art><span class="hero-fallback">' + heroArtwork + '</span><canvas class="hero-volume" width="216" height="270" aria-hidden="true"></canvas></span>');
     document.body.appendChild(host);
     startCloverRuntime();
   }
