@@ -554,7 +554,7 @@
 .site-pet__hit {transform:scaleX(var(--pet-flip)) !important; transition:transform 180ms ease;}
 .site-pet__svg {width:64px; height:72px; left:4px; top:7px;}
 .hero-art {display:block; overflow:visible; pointer-events:none;}
-.hero-web-detail {stroke:#171719; stroke-width:1.25; fill:none;}
+.hero-web-detail {stroke:#38383f; stroke-width:.85; fill:none;}
 .hero-rig {transform-origin:56px 4px;}
 .hero-body {transform:translateY(var(--hero-body-y,0px));}
 .hero-head {transform:rotate(var(--hero-head-tilt,0deg)); transform-origin:40px 55px;}
@@ -568,6 +568,8 @@
 .hero-arm-r {transform:rotate(var(--hero-arm-r,0deg));}
 .hero-forearm-l {transform:rotate(var(--hero-elbow-l,0deg));}
 .hero-forearm-r {transform:rotate(var(--hero-elbow-r,0deg));}
+.hero-hand-l {transform:rotate(var(--hero-wrist-l,0deg));}
+.hero-hand-r {transform:rotate(var(--hero-wrist-r,0deg));}
 .hero-hanging-arm {display:none;}
 .site-pet[data-entry="waiting"] {visibility:hidden;}
 .site-pet[data-entry="descending"] .hero-rig,

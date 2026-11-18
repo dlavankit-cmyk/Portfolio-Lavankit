@@ -1,4 +1,4 @@
-import { sampleHeroEntrance, paintHeroPose } from "./heroMotion";
+import { sampleHeroEntrance, paintHeroPose, HERO_STRIDE_PX } from "./heroMotion";
 // Adapted from megany128/portfolio SitePet.astro at 8aa5ecf65352f93ab4ddff07473c7cf85c8ef186.
 
   /*
@@ -921,7 +921,7 @@ import { sampleHeroEntrance, paintHeroPose } from "./heroMotion";
       pet.style.setProperty("--pet-y", `${y}px`);
       pet.style.setProperty("--pet-flip", dir === 1 ? "1" : "-1");
       const moving = !hovered && !dragging && !inDizzy && y < 2 && !reduced;
-      if (moving) gaitPhase += Math.abs(x - lastPoseX) / 26 * Math.PI * 2;
+      if (moving) gaitPhase += Math.abs(x - lastPoseX) / HERO_STRIDE_PX * Math.PI * 2;
       lastPoseX = x;
       const landT = now - landingAt;
       const compression = landT < 90 ? landT / 90 : landT < 520 ? (1 - (landT - 90) / 430) : 0;

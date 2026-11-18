@@ -2,6 +2,8 @@ export type EntryStage = 'descending' | 'hanging' | 'falling' | 'landing' | 'wal
 const clamp = (v:number, lo:number, hi:number) => Math.max(lo,Math.min(hi,v));
 const smooth = (p:number) => p*p*(3-2*p);
 export const HERO_RELEASE_MS = 2100;
+// Match world travel to the planted foot's backwards travel: no moonwalking.
+export const HERO_STRIDE_PX = 15 * .9 / .62;
 /** Feet coordinates keep the timeline independent of character size and viewport height. */
 export function sampleHeroEntrance(elapsed:number, ground:number) {
   const rest = Math.max(20,ground*.36);
@@ -26,25 +28,47 @@ function legPose(phase:number,bob:number,crouch:number) {
   const p=((phase%(Math.PI*2))+Math.PI*2)%(Math.PI*2)/(Math.PI*2);
   const stance=p<.62;
   const u=stance?p/.62:(p-.62)/.38;
-  const footX=stance?6-12*u:-6+12*smooth(u);
-  const lift=stance?0:Math.sin(Math.PI*u)*5;
-  const vertical=clamp(20-bob-lift-crouch*7,7,21);
-  const distance=clamp(Math.hypot(footX,vertical),1,21.9);
+  // Hermite swing tangents match stance velocity at toe-off and heel strike.
+  const tangent = -15 * .38 / .62;
+  const footX=stance ? 7.5-15*u : -7.5+15*smooth(u)+tangent*(2*u*u*u-3*u*u+u);
+  const lift=stance ? 0 : Math.sin(Math.PI*u)**2*2.6;
+  const footRoll=stance
+    ? -8*(1-smooth(clamp(u/.16,0,1)))+16*smooth(clamp((u-.8)/.2,0,1))
+    : 16-24*smooth(u);
+  const vertical=clamp(20.2-bob-lift-crouch*7,7,21);
+  const distance=clamp(Math.hypot(footX,vertical),1,21.5);
   const knee=Math.acos(clamp((distance*distance-100-144)/240,-1,1));
   const upper=Math.atan2(-footX,vertical)-Math.atan2(12*Math.sin(knee),10+12*Math.cos(knee));
-  return [upper*180/Math.PI,knee*180/Math.PI,-(upper+knee)*180/Math.PI];
+  return [upper*180/Math.PI,knee*180/Math.PI,footRoll-(upper+knee)*180/Math.PI];
 }
+const activity = new WeakMap<HTMLElement, {time:number, blend:number}>();
 const previousValues = new WeakMap<HTMLElement, Record<string,string>>();
 export function paintHeroPose(pet:HTMLElement, phase:number, moving:boolean, crouch=0, airborne=false, reduced=false) {
-  const bob=moving&&!reduced?Math.cos(phase*2)*.65:0;
-  const values:Record<string,number>={'body-y':bob+crouch*7,'head-tilt':moving?Math.sin(phase-.35)*1.8:0};
+  const now=performance.now();
+  const state=activity.get(pet) ?? {time:now,blend:0};
+  const dt=clamp((now-state.time)/1000,0,.05);
+  const target=moving&&!reduced?1:0;
+  state.blend=reduced?0:target+(state.blend-target)*Math.exp(-dt/.085);
+  state.time=now;
+  activity.set(pet,state);
+  const blend=state.blend;
+  const bob=Math.cos(phase*2-.35)*.5*blend-.6*(1-blend);
+  const values:Record<string,number>={
+    'body-y':bob+crouch*7+.6,
+    'head-tilt':Math.sin(phase-.55)*1.25*blend,
+  };
   for(const [side,offset] of [['l',0],['r',Math.PI]] as const){
-    const [upper,knee,foot]=legPose(moving&&!reduced?phase+offset:Math.PI*.31,bob,crouch);
+    const walk=legPose(phase+offset,bob,crouch);
+    const rest=legPose(Math.PI*.62,bob,crouch);
+    // Relax into the rest pose instead of snapping limbs when he pauses.
+    const [upper,knee,foot]=rest.map((v,index)=>v+(walk[index]-v)*blend);
     values[`leg-${side}-upper`]=airborne?(side==='l'?-22:18):upper;
     values[`leg-${side}-lower`]=airborne?35:knee;
     values[`leg-${side}-foot`]=airborne?-15:foot;
-    values[`arm-${side}`]=airborne?(side==='l'?-95:105):moving?Math.sin(phase+offset)*22:side==='l'?12:-12;
-    values[`elbow-${side}`]=airborne?-24:-8-(moving?Math.max(0,Math.sin(phase+offset))*12:0);
+    const armRest=side==='l'?7:-7;
+    values[`arm-${side}`]=airborne?(side==='l'?-85:90):armRest*(1-blend)+Math.sin(phase+offset-.2)*17*blend;
+    values[`elbow-${side}`]=airborne?-24:-10-(.5+.5*Math.sin(phase+offset-.55))*9*blend;
+    values[`wrist-${side}`]=airborne?5:Math.sin(phase+offset-.85)*3.5*blend;
   }
   const previous = previousValues.get(pet) ?? {};
   for(const [key,value] of Object.entries(values)) {
