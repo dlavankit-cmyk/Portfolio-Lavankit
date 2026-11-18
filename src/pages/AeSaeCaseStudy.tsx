@@ -13,6 +13,7 @@ import {
   useTheme,
   type Chapter,
 } from "../components/blocks";
+import { SaeComparison } from "../components/SaeComparison";
 import { aeSaeProject } from "../content/aeSaeProject";
 import { NoiseTexture } from "../components/NoiseTexture";
 
@@ -55,7 +56,10 @@ export default function AeSaeCaseStudy({ animateEntrance = true }: { animateEntr
       </BreadcrumbPill>
       <Sidebar chapters={chapters} active={active} />
       <main className="relative z-10 mx-auto w-full px-5 pt-[130px] pb-32 md:w-[60%] md:px-0">
-        <MediaBox hint={"Hero shot of the final alert banner inside the form. Full width."} />
+        <MediaBox
+          video="https://res.cloudinary.com/vwlr2h8r/video/upload/v1794851656/Final_Video.mp4"
+          alt="AE/SAE prediction platform overview"
+        />
         <header className="mt-8">
           <div data-fade className="flex flex-col gap-8 sm:flex-row sm:gap-0">
             <div className="flex flex-col gap-4 sm:w-[70%] sm:pr-12">
@@ -80,25 +84,7 @@ export default function AeSaeCaseStudy({ animateEntrance = true }: { animateEntr
           body={
             "In a clinical trial, a Serious Adverse Event (SAE) is a serious health problem a patient has while testing a new drug. When one happens, the FDA must be told. The trial can be paused or stopped. That costs millions of dollars and delays the drug by months or years."
           }
-          media={
-            <div className="grid gap-2 rounded-[14px] border border-card-border bg-card p-5 sm:grid-cols-2 sm:p-10">
-              {[
-                { title: "Found late.", description: "Patient in hospital, trial at risk." },
-                {
-                  title: "Found early.",
-                  description: "Nurse alerted, patient treated, trial continues.",
-                },
-              ].map((card) => (
-                <div
-                  key={card.title}
-                  className="flex min-h-48 flex-col justify-between rounded-[14px] border border-card-border bg-box p-6"
-                >
-                  <p className="text-[15px] font-medium text-ink">{card.title}</p>
-                  <p className="text-[14px] leading-[1.5] text-body">{card.description}</p>
-                </div>
-              ))}
-            </div>
-          }
+          media={<SaeComparison theme={dark ? "dark" : "light"} />}
         />
         <TextMedia
           heading={"But these problems rarely happen suddenly. They build up over visits"}
@@ -115,16 +101,15 @@ export default function AeSaeCaseStudy({ animateEntrance = true }: { animateEntr
         />
         <TextMedia
           heading={
-            "And the data that shows this pattern was already saved, but nobody read it together"
+            "While researching the nurse workflow, I found the system had all the data but was not reading the pattern"
           }
           body={
             "At every visit, the nurse records blood pressure, heart rate, and lab results. All of it is saved. But each visit was checked alone, never next to the others."
           }
           media={
             <MediaBox
-              hint={
-                'A stack of visit records, each checked separately. Label: "Checked one at a time."'
-              }
+              image="https://res.cloudinary.com/vwlr2h8r/image/upload/v1794997742/AE_SAE_Value_Trebd.png"
+              alt="Patient values across visits reveal a pattern that individual readings miss"
             />
           }
         />
@@ -207,7 +192,7 @@ export default function AeSaeCaseStudy({ animateEntrance = true }: { animateEntr
         <Block id="design-decisions">
           <TextBlock
             eyebrow={<Accent>Design decisions</Accent>}
-            heading={"A small banner in the form the nurse is already using"}
+            heading={"Part 3. The nurse sees only a small banner, in the form she already uses"}
           >
             <div className="flex flex-col gap-4">
               <p data-fade className="text-[13px] text-label">
@@ -223,9 +208,8 @@ export default function AeSaeCaseStudy({ animateEntrance = true }: { animateEntr
           </TextBlock>
           <div data-fade className="mt-6">
             <MediaBox
-              hint={
-                "Banner at the top of the form. Below: Accept path with pre-filled form. Reject path with reason box and saved record."
-              }
+              video="https://res.cloudinary.com/vwlr2h8r/video/upload/v1795000153/Ai_alert.mp4"
+              alt="AI alert banner in the nurse’s existing form"
             />
           </div>
         </Block>
