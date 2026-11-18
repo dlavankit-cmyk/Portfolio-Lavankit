@@ -173,6 +173,7 @@ function ProjectCard({
           onClose();
         }
       }}
+      data-clover-ledge
       className={`${className} ${focusClass}`}
       {...hoverProps}
     >
@@ -314,7 +315,7 @@ export default function Home({
         </div>
 
         {/* Intro */}
-        <section id="about" className={`${blurClass} flex scroll-mt-[216px] flex-col gap-[30px]`}>
+        <section data-clover-ledge id="about" className={`${blurClass} flex scroll-mt-[216px] flex-col gap-[30px]`}>
           <div data-fade className="flex items-center gap-2.5">
             <div className="flex min-w-0 flex-1 flex-col gap-1">
               <h1 className="text-[18px] leading-[21.6px] text-ink">Lavankit Dariwal</h1>
