@@ -2,9 +2,6 @@ import {
   Block,
   Body,
   BreadcrumbPill,
-  Eyebrow,
-  MediaBox,
-  Placeholder,
   Sidebar,
   TextBlock,
   TextMedia,
@@ -18,28 +15,22 @@ import { NoiseTexture } from "../components/NoiseTexture";
 
 const chapters: Chapter[] = [
   { id: "problem", label: "Problem" },
-  { id: "insights", label: "Insights" },
   { id: "solution", label: "Solution" },
-  { id: "design-decisions", label: "Design decisions" },
-  { id: "impact", label: "Impact" },
+  { id: "impact", label: "Expected impact" },
 ];
 const chapterIds = chapters.map((c) => c.id);
 
 const impact = [
-  {
-    value: "Within seconds",
-    label: "The nurse is alerted right after saving a flagged value, not days or weeks later.",
-  },
-  {
-    value: "Across visits",
-    label:
-      "Slow decline no longer hides in saved data. Each patient is read against their own normal.",
-  },
-  {
-    value: "94.5%",
-    label: "Fewer AI calls. This makes it affordable for large trials across many sites.",
-  },
+  { value: "Patients treated on time, possibly saving lives", label: "An alert within seconds of saving a flagged value gives the team time to treat the patient before they leave and collapse at home. Caught early, it also avoids a trial hold that costs millions." },
+  { value: "Slow decline no longer hides", label: "The system reads each patient against their own normal, across visits." },
+  { value: "94.5% fewer AI calls", label: "Makes it affordable for large trials across many sites." },
 ];
+function Diagram({ children }: { children: React.ReactNode }) {
+  return <div className="rounded-[14px] border border-card-border bg-card p-5 sm:p-8">{children}</div>;
+}
+function Cards({ items }: { items: string[][] }) {
+  return <div className="grid gap-3 sm:grid-cols-2">{items.map(([title,description]) => <div key={title} className="flex min-h-44 flex-col justify-between gap-8 rounded-[14px] border border-card-border bg-box p-6"><p className="text-[15px] font-medium text-ink">{title}</p><p className="text-[14px] leading-[1.5] text-body">{description}</p></div>)}</div>;
+}
 const Accent = ({ children }: { children: string }) => (
   <span className="text-accent">{children}</span>
 );
@@ -55,7 +46,7 @@ export default function AeSaeCaseStudy({ animateEntrance = true }: { animateEntr
       </BreadcrumbPill>
       <Sidebar chapters={chapters} active={active} />
       <main className="relative z-10 mx-auto w-full px-5 pt-[130px] pb-32 md:w-[60%] md:px-0">
-        <MediaBox hint={"Hero shot of the final alert banner inside the form. Full width."} />
+        <Diagram><p className="mb-4 text-[12px] text-label">Clinical trial platform · Patient visit</p><div className="rounded-xl border border-accent bg-box p-6"><p className="text-[16px] font-medium text-ink">Patient safety pattern detected</p><p className="mt-2 text-[14px] text-body">A small alert in the form the nurse already uses.</p><div className="mt-5 flex gap-3 text-[13px]"><span className="rounded-full bg-btn px-4 py-2 text-btn-text">Accept</span><span className="rounded-full border border-card-border px-4 py-2 text-ink">Reject</span></div></div><p className="mt-3 text-[12px] text-label">Illustrative concept · In development</p></Diagram>
         <header className="mt-8">
           <div data-fade className="flex flex-col gap-8 sm:flex-row sm:gap-0">
             <div className="flex flex-col gap-4 sm:w-[70%] sm:pr-12">
@@ -73,257 +64,45 @@ export default function AeSaeCaseStudy({ animateEntrance = true }: { animateEntr
             </dl>
           </div>
         </header>
-        <TextMedia
-          id="problem"
-          eyebrow={<Accent>Problem</Accent>}
-          heading={"A serious patient health problem can put a whole clinical trial at risk"}
-          body={
-            "In a clinical trial, a Serious Adverse Event (SAE) is a serious health problem a patient has while testing a new drug. When one happens, the FDA must be told. The trial can be paused or stopped. That costs millions of dollars and delays the drug by months or years."
-          }
-          media={
-            <div className="grid gap-2 rounded-[14px] border border-card-border bg-card p-5 sm:grid-cols-2 sm:p-10">
-              {[
-                { title: "Found late.", description: "Patient in hospital, trial at risk." },
-                {
-                  title: "Found early.",
-                  description: "Nurse alerted, patient treated, trial continues.",
-                },
-              ].map((card) => (
-                <div
-                  key={card.title}
-                  className="flex min-h-48 flex-col justify-between rounded-[14px] border border-card-border bg-box p-6"
-                >
-                  <p className="text-[15px] font-medium text-ink">{card.title}</p>
-                  <p className="text-[14px] leading-[1.5] text-body">{card.description}</p>
-                </div>
-              ))}
-            </div>
-          }
-        />
-        <TextMedia
-          heading={"But these problems rarely happen suddenly. They build up over visits"}
-          body={
-            "At visit one, a value is a little off. At visit two, it is worse. Each reading looks fine on its own. Together, they show a pattern."
-          }
-          media={
-            <MediaBox
-              hint={
-                "Three visits on a timeline. The same reading gets slightly worse each time. No single reading looks scary. The pattern does."
-              }
-            />
-          }
-        />
-        <TextMedia
-          heading={
-            "And the data that shows this pattern was already saved, but nobody read it together"
-          }
-          body={
-            "At every visit, the nurse records blood pressure, heart rate, and lab results. All of it is saved. But each visit was checked alone, never next to the others."
-          }
-          media={
-            <MediaBox
-              hint={
-                'A stack of visit records, each checked separately. Label: "Checked one at a time."'
-              }
-            />
-          }
-        />
-        <TextMedia
-          heading={"So the warning came late, days or weeks after the visit"}
-          body={"By the time someone noticed, it was too late to change anything."}
-          media={
-            <MediaBox
-              hint={
-                "Timeline. Visit → data saved → days or weeks pass → review → problem found. The gap is highlighted."
-              }
-            />
-          }
-        />
-        <Block id="insights">
-          <TextBlock
-            eyebrow={<Accent>Insights</Accent>}
-            heading={"To read across visits, I had to answer three simple questions."}
-          />
-        </Block>
-        <section className="mt-12 grid gap-x-5 gap-y-16 sm:grid-cols-2">
-          <div className="flex flex-col gap-6">
-            <TextBlock
-              eyebrow={<Accent>Insight 1 · Compare with what?</Accent>}
-              heading={"Normal is different for every patient"}
-            >
-              <Body>
-                A patient with high blood pressure always has high readings. Compared with an
-                average person, that patient looks at risk at every visit.
-              </Body>
-            </TextBlock>
-            <MediaBox
-              className="mt-auto"
-              ratio="aspect-[4/3]"
-              hint={"The same reading against two different normals."}
-            />
-          </div>
-          <div className="flex flex-col gap-6">
-            <TextBlock
-              eyebrow={<Accent>Insight 2 · Look at what?</Accent>}
-              heading={"One reading is rarely scary. The trend is"}
-            >
-              <Body>
-                A heart rate of 130 at three visits in a row never crosses an emergency limit. But
-                it is clearly not getting better.
-              </Body>
-            </TextBlock>
-            <MediaBox
-              className="mt-auto"
-              ratio="aspect-[4/3]"
-              hint={"A flat line under the limit, and a rising trend line over it."}
-            />
-          </div>
-        </section>
-        <TextMedia
-          eyebrow={<Accent>Insight 3 · When to speak up?</Accent>}
-          heading={"An alert only works if the nurse trusts it"}
-          body={
-            "Too early, and nurses start ignoring alerts. Too late, and the alert is useless. Either way, the feature fails."
-          }
-          media={<MediaBox hint={"Three states. Too early. Too late. Right time."} />}
-        />
-        <TextMedia
-          id="solution"
-          eyebrow={<Accent>Solution</Accent>}
-          heading={
-            "A system that compares each patient to their own normal and speaks up only when it is sure"
-          }
-          body={
-            "At the first visit, before any drug is given, the system learns the patient’s normal. With each visit, it collects more evidence and builds a score. When the score is high enough, a small banner appears in the form the nurse is already using. She accepts or rejects it. Her workflow does not change."
-          }
-          media={
-            <MediaBox
-              hint={
-                "Montage. First visit → evidence builds over visits → banner in the form → accept and reject. Full width."
-              }
-            />
-          }
-        />
-        <Block id="design-decisions">
-          <TextBlock
-            eyebrow={<Accent>Design decisions</Accent>}
-            heading={"A small banner in the form the nurse is already using"}
-          >
-            <div className="flex flex-col gap-4">
-              <p data-fade className="text-[13px] text-label">
-                Answers Insight 3
-              </p>
-              <Body>
-                No new screen and no new tool to learn. The banner explains in plain words what the
-                system noticed and how likely the problem is. Accept opens the SAE form already
-                filled with the patient, visit, and values. Reject asks why, and saves the reason so
-                the next reviewer can see it.
-              </Body>
-            </div>
-          </TextBlock>
-          <div data-fade className="mt-6">
-            <MediaBox
-              hint={
-                "Banner at the top of the form. Below: Accept path with pre-filled form. Reject path with reason box and saved record."
-              }
-            />
-          </div>
-        </Block>
-        <Block>
-          <TextBlock
-            heading={"Two layers of checks, and an alert only when the score reaches 75 out of 100"}
-          >
-            <div className="flex flex-col gap-4">
-              <p data-fade className="text-[13px] text-label">
-                Answers Insights 1, 2 and 3
-              </p>
-              <Body>
-                The first visit sets each patient’s normal. Every later visit is compared with it,
-                and the score builds as evidence adds up. Layer one uses fixed limits to catch
-                sudden emergencies, like a heart rate above 150. Layer two looks for patterns, and
-                catches slow decline that never crosses a limit. The nurse never sees the score.
-                Below 75, there were too many false alarms. Above 75, early warnings were missed.
-              </Body>
-            </div>
-          </TextBlock>
-          <div data-fade className="mt-6">
-            <MediaBox
-              hint={
-                "Two boxes for the layers, with a patient that Layer 1 misses and Layer 2 catches. Below: score bar. 0 Normal. 1-39 Monitoring. 40-64 Watching. 65-74 Close to alert. 75+ Alert. Numbers are for the reader only, not for the nurse."
-              }
-            />
-          </div>
-        </Block>
-        <Block>
-          <TextBlock heading={"The AI is called based on risk, not on every field saved"}>
-            <div className="flex flex-col gap-4">
-              <p data-fade className="text-[13px] text-label">
-                Making it work at scale
-              </p>
-              <Body>
-                Calling the AI on every saved field means 40,000 calls per trial. Calling it once
-                per finished visit, plus extra checks for watched patients, is about 2,200. Low-risk
-                patients get light checks. For watched patients, saving a flagged value triggers an
-                instant check, so the nurse gets the alert within seconds.
-              </Body>
-            </div>
-          </TextBlock>
-          <div data-fade className="mt-6">
-            <div className="grid gap-2 sm:grid-cols-2">
-              {[
-                { title: "Every field", value: "40,000", detail: "calls" },
-                { title: "By visit, with extra checks", value: "~2,200", detail: "94.5% fewer" },
-              ].map((stat) => (
-                <div
-                  key={stat.title}
-                  className="flex aspect-[4/3] flex-col justify-between rounded-[14px] border border-card-border bg-card p-6"
-                >
-                  <p className="text-[15px] text-label">{stat.title}</p>
-                  <p className="text-[36px] leading-none font-semibold tracking-tight text-ink">
-                    {stat.value}
-                  </p>
-                  <p className="text-[15px] text-body">{stat.detail}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Block>
+        <TextMedia id="problem" eyebrow={<Accent>Problem</Accent>}
+          heading="A serious patient health problem, found late, can cost a patient’s life and put a whole trial on hold for millions"
+          body="In a clinical trial, a Serious Adverse Event (SAE) is a serious health problem a patient has while testing a new drug. When one happens, the FDA must be told. The trial can be paused or stopped, and each pause costs millions of dollars. A patient can also leave after a visit, collapse at home, and face a very serious emergency, even death, long after anyone could help."
+          media={<Cards items={[
+            ["Found late.", "Patient collapses at home, trial at risk."],
+            ["Found early.", "Nurse alerted, patient treated, trial continues."],
+          ]} />} />
+        <TextMedia heading="These problems do not happen suddenly. They build up as a pattern over visits"
+          body="A value is a little off at visit one and worse at visit two. Each reading looks fine alone. Together, they show a pattern."
+          media={<Diagram><div className="grid grid-cols-3 gap-4">{[1,2,3].map((visit) => <div key={visit} className="flex flex-col gap-4"><span className="text-[13px] text-label">Visit {visit}</span><div className="flex h-28 items-end border-b border-card-border"><div className="w-full rounded-t-lg bg-accent" style={{height: `${visit * 23 + 10}%`}} /></div><span className="text-[13px] text-body">{["A little off", "Slightly worse", "Still declining"][visit-1]}</span></div>)}</div><p className="mt-6 text-[14px] text-body">The pattern is clear, no single reading is.</p></Diagram>} />
+        <TextMedia heading="While researching the nurse workflow, I found the system had all the data but was not reading the pattern"
+          body="Every value the nurse recorded was saved. She might notice a pattern while entering data, but the system itself was not identifying it. Each visit was checked alone, so any warning came days or weeks later."
+          media={<Diagram><div className="mx-auto flex max-w-md flex-col gap-3">{[1,2,3].map(v => <div key={v} className="flex justify-between rounded-xl border border-card-border bg-box p-4 text-[14px] text-ink"><span>Visit {v} record</span><span className="text-label">Checked separately ✓</span></div>)}</div><p className="mt-6 text-center text-[15px] text-body">Saved, but not read together.</p></Diagram>} />
+        <TextMedia heading="So the real challenge was system design: quick alerts for nurses, without a huge AI bill"
+          body="Nurses need a quick alert. But calling the AI every time a nurse fills one field means thousands of calls and a very high cost. The system also needed more than one layer of checks, so the alerts stay accurate."
+          media={<Diagram><div className="flex flex-wrap items-center justify-center gap-5 text-[15px] text-ink"><span>Quick alerts</span><span aria-hidden>←</span><strong className="rounded-xl border border-card-border bg-box p-6">One system</strong><span aria-hidden>→</span><span>API cost</span></div></Diagram>} />
+        <TextMedia id="solution" eyebrow={<Accent>Solution</Accent>}
+          heading="I worked out the full solution before taking it to the CEO: a backend system design in three parts"
+          body="I did not go to the CEO with only the problem. I first worked out what it takes to solve it. What I proposed is a system design for how things work in the backend, not a screen design."
+          media={<Diagram><div className="grid gap-3 sm:grid-cols-4">{["Nurse saves a value", "System checks", "Score builds", "Alert"].map((step,i) => <div key={step} className="rounded-xl border border-card-border bg-box p-5"><p className="mb-5 text-[12px] text-accent">0{i+1} {i < 3 ? "→" : "✓"}</p><p className="text-[15px] text-ink">{step}</p></div>)}</div></Diagram>} />
+        <TextMedia heading="Part 1. The system reads each patient against their own normal, in two layers"
+          body="The first visit sets each patient’s normal. Every later visit adds evidence to a score, and the nurse never sees it. Layer one uses fixed limits to catch sudden emergencies, like a heart rate above 150. Layer two looks for patterns, and catches slow decline that never crosses a limit. The alert appears only when the score reaches 75 out of 100. Below that, there were too many false alarms. Above it, early warnings were missed."
+          media={<Diagram><Cards items={[["Layer 1 · Fixed limits", "Catches sudden emergencies. Slow decline below the limit is missed."], ["Layer 2 · Patterns", "Reads across visits. Catches the same patient’s slow decline."]]} /><div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-5">{["0 · Normal", "1–39 · Monitoring", "40–64 · Watching", "65–74 · Close to alert", "75+ · Alert"].map((label,i) => <div key={label} className={`rounded-lg border border-card-border p-3 text-[12px] ${i===4 ? "bg-accent text-white" : "bg-box text-body"}`}>{label}</div>)}</div><p className="mt-3 text-[12px] text-label">Score shown here for the reader only. Nurses do not see it.</p></Diagram>} />
+        <TextMedia heading="Part 2. The AI is called based on risk, not on every field saved"
+          body="Calling the AI on every saved field means about 40,000 calls per trial. Calling it once per finished visit, plus extra checks for watched patients, is about 2,200. That is 94.5% fewer. For watched patients, saving a flagged value triggers an instant check, so the alert comes within seconds."
+          media={<div className="grid gap-2 sm:grid-cols-2">{[["Every field", "40,000", "calls per trial"], ["By visit, with extra checks", "~2,200", "94.5% fewer"]].map(([title,value,detail]) => <div key={title} className="flex min-h-56 flex-col justify-between gap-6 rounded-[14px] border border-card-border bg-card p-6"><p className="text-[15px] text-label">{title}</p><p className="text-[36px] font-semibold tracking-tight text-ink">{value}</p><p className="text-[15px] text-body">{detail}</p></div>)}</div>} />
+        <TextMedia heading="Part 3. The nurse sees only a small banner, in the form she already uses"
+          body="No new screen and no new tool to learn. The banner explains in plain words what the system noticed and how likely the problem is. Accept opens the SAE form already filled with the patient, visit, and values. Reject asks why, and saves the reason so the next reviewer can see it."
+          media={<Diagram><div className="rounded-xl border border-card-border bg-box p-5"><p className="text-[12px] text-label">Patient visit form · Illustrative alert</p><div className="mt-4 rounded-lg border border-accent p-4"><p className="text-[15px] font-medium text-ink">Patient safety pattern detected</p><p className="mt-2 text-[14px] text-body">Readings have worsened across visits. Review the potential SAE and its likelihood.</p><div className="mt-4 flex gap-3 text-[13px] text-accent"><span>Accept ↓</span><span>Reject ↓</span></div></div><div className="mt-4 grid gap-3 sm:grid-cols-2"><div className="rounded-lg border border-card-border p-4"><p className="text-[14px] text-ink">Accept → SAE form</p><p className="mt-2 text-[13px] text-label">Patient ✓ · Visit ✓ · Values ✓<br />Already filled in</p></div><div className="rounded-lg border border-card-border p-4"><p className="text-[14px] text-ink">Reject → Reason</p><p className="mt-2 rounded border border-card-border p-3 text-[13px] text-label">Reason for rejecting…</p><p className="mt-2 text-[12px] text-label">Saved for the next reviewer</p></div></div></div></Diagram>} />
         <Block id="impact">
-          <Eyebrow>
-            <Accent>Impact</Accent>
-          </Eyebrow>
-          <div data-fade className="mt-6 grid gap-2 sm:grid-cols-3">
-            {impact.map((s) => (
-              <div
-                data-impact-card
-                key={s.value}
-                className="flex flex-col justify-between gap-10 rounded-[14px] border border-card-border bg-card p-6 sm:aspect-[4/5]"
-              >
-                <p className="text-[32px] leading-none font-semibold tracking-tight text-ink">
-                  {s.value}
-                </p>
-                <p className="text-[16px] leading-[1.45] text-body">{s.label}</p>
-              </div>
-            ))}
+          <TextBlock eyebrow={<Accent>Expected impact</Accent>} heading="Not tested yet, and the development team is building it now. It is designed to catch problems in time to treat the patient, and avoid costly trial holds" />
+          <div data-fade className="mt-6 grid gap-3 sm:grid-cols-2">
+            {impact.map((item,i) => <div key={item.value} data-impact-card className={`flex flex-col gap-6 rounded-[14px] border bg-card p-6 ${i === 0 ? "border-accent sm:col-span-2 sm:p-10" : "border-card-border"}`}><p className={`${i === 0 ? "text-[26px]" : "text-[20px]"} font-medium leading-[1.3] text-ink`}>{item.value}</p><p className="text-[15px] leading-[1.5] text-body">{item.label}</p></div>)}
           </div>
         </Block>
-
         <Block>
-          <a
-            href="#"
-            data-fade
-            className="group flex flex-col gap-5 rounded-[14px] border border-card-border bg-card p-5 sm:min-h-[104px] sm:flex-row sm:items-center sm:gap-5 sm:px-6 sm:py-5"
-          >
-            <Placeholder label="ICON" className="size-16 shrink-0 px-0" />
-            <div className="flex flex-1 flex-col gap-1">
-              <p className="text-[18px] font-semibold text-ink">Want the full process?</p>
-              <p className="text-[16px] leading-[1.5] text-label">
-                Research, wireframes, rejected directions, and every decision documented.
-              </p>
-            </div>
-            <span className="inline-flex h-9 shrink-0 items-center self-start rounded-full bg-btn px-4 text-[13px] font-semibold text-btn-text transition-opacity group-hover:opacity-85 sm:self-center">
-              View full process →
-            </span>
+          <a href="#" data-fade className="group flex flex-col gap-5 rounded-[14px] border border-card-border bg-card p-6 sm:flex-row sm:items-center">
+            <div className="flex flex-1 flex-col gap-1"><p className="text-[18px] font-semibold text-ink">Want the full process?</p><p className="text-[16px] leading-[1.5] text-label">Research, system design, rejected directions, and every decision documented.</p></div>
+            <span className="inline-flex h-9 shrink-0 items-center self-start rounded-full bg-btn px-4 text-[13px] font-semibold text-btn-text sm:self-center">View full process →</span>
           </a>
         </Block>
       </main>
