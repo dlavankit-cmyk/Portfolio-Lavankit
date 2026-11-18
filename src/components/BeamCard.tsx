@@ -4,7 +4,7 @@ import "./beam-card.css";
 type BeamCardProps = {
   color: "red" | "green";
   theme?: "light" | "dark"; // omit to follow the site theme / prefers-color-scheme
-  strength?: number; // 0-1, glow intensity, default 0.7
+  strength?: number; // 0-1, glow intensity, default 0.45
   active?: boolean; // false pauses the animation, default true
   delay?: number; // seconds, offsets the animation phase
   children: ReactNode;
@@ -13,7 +13,7 @@ type BeamCardProps = {
 export function BeamCard({
   color,
   theme,
-  strength = 0.7,
+  strength = 0.45,
   active = true,
   delay = 0,
   children,
