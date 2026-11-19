@@ -78,7 +78,7 @@ export function InkHero({ src, alt }: { src: string; alt: string }) {
           const closing = Math.pow(Math.max(0, 1 - age / TRAIL_LIFETIME), 0.85);
           const taper = Math.min(1, (index + 1) / 5, (points.length - index) / 5);
           const flow = Math.sin(point.distance * 0.055 - age * 0.003);
-          const radius = Math.min(29, height * 0.15) * opening * closing * taper;
+          const radius = Math.min(36, height * 0.19) * opening * closing * taper;
           const bend = radius * flow * 0.18;
           const nx = -dy / length;
           const ny = dx / length;
@@ -111,15 +111,16 @@ export function InkHero({ src, alt }: { src: string; alt: string }) {
       width = box.width;
       height = box.height;
       if (!width || !height) return;
-      // Subpixel cells preserve the person's outline, screen, desk and fine grass detail.
-      const columns = Math.max(1, Math.ceil(width / 0.8));
-      const rows = Math.max(1, Math.ceil(height / 0.8));
+      // Larger ink cells and softened sampling reduce the image to broad, simple forms.
+      const columns = Math.max(1, Math.ceil(width / 4));
+      const rows = Math.max(1, Math.ceil(height / 4));
       sample.width = columns;
       sample.height = rows;
       const input = sample.getContext("2d", { willReadFrequently: true });
       const texture = ink.getContext("2d");
       if (!input || !texture) return;
       const scale = Math.max(columns / original.naturalWidth, rows / original.naturalHeight);
+      input.filter = "blur(1.25px)";
       input.drawImage(
         original,
         (columns - original.naturalWidth * scale) / 2,
@@ -157,9 +158,9 @@ export function InkHero({ src, alt }: { src: string; alt: string }) {
               ),
             );
             if (0.96 - luminance * 0.84 <= bayer4(x, y) + 1 / 32) continue;
-            const tone = Math.round(dark ? 238 - luminance * 75 : 1 + luminance * 76);
+            const tone = dark ? 235 : 24;
             texture.fillStyle = `rgb(${tone} ${tone} ${tone})`;
-            texture.fillRect(x * cellWidth, y * cellHeight, cellWidth - 0.08, cellHeight - 0.08);
+            texture.fillRect(x * cellWidth, y * cellHeight, cellWidth - 0.7, cellHeight - 0.7);
           }
         }
         prepared = true;
