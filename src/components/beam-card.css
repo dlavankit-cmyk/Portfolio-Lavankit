@@ -152,3 +152,10 @@
 @container (max-width: 640px) {
   .sae-compare { grid-template-columns: 1fr; gap: 32px; padding: 0; }
 }
+
+/* Compact call comparison; keep the shared red/green beam treatment. */
+.sae-call-comparison .beam-card { --radius: 14px; min-height: 144px; }
+.sae-call-comparison .beam-surface { padding: 20px 24px; }
+.sae-call-comparison .sae-call-label { font-size: 14px; }
+.sae-call-comparison .sae-call-value { margin: 12px 0 8px; font-size: 26px; font-weight: 600; line-height: 1.15; letter-spacing: -.02em; color: var(--text); }
+.sae-call-comparison .sae-call-detail { font-size: 13px; }

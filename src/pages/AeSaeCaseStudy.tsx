@@ -1,3 +1,5 @@
+import { BellRing, Coins, ShieldCheck, Activity } from "lucide-react";
+import { BeamCard } from "../components/BeamCard";
 import {
   Block,
   Body,
@@ -45,12 +47,12 @@ function Diagram({ children }: { children: React.ReactNode }) {
 function Cards({ items }: { items: string[][] }) {
   return (
     <div className="grid gap-3 sm:grid-cols-2">
-      {items.map(([title, description]) => (
+      {items.map(([title, description], i) => (
         <div
           key={title}
-          className="flex min-h-44 flex-col justify-between gap-8 rounded-[14px] border border-card-border bg-box p-6"
+          className="flex flex-col gap-4 rounded-xl bg-box p-5 shadow-sm"
         >
-          <p className="text-[15px] font-medium text-ink">{title}</p>
+          <div className="flex items-center gap-3 text-ink">{i === 0 ? <ShieldCheck size={19} className="shrink-0 text-label" /> : <Activity size={19} className="shrink-0 text-emerald-600 dark:text-emerald-400" />}<p className="text-[15px] font-medium">{title}</p></div>
           <p className="text-[14px] leading-[1.5] text-body">{description}</p>
         </div>
       ))}
@@ -142,14 +144,15 @@ export default function AeSaeCaseStudy({ animateEntrance = true }: { animateEntr
           body="Nurses need a quick alert. But calling the AI every time a nurse fills one field means thousands of calls and a very high cost. The system also needed more than one layer of checks, so the alerts stay accurate."
           media={
             <Diagram>
-              <div className="flex flex-wrap items-center justify-center gap-5 text-[15px] text-ink">
-                <span>Quick alerts</span>
-                <span aria-hidden>←</span>
-                <strong className="rounded-xl border border-card-border bg-box p-6">
-                  One system
-                </strong>
-                <span aria-hidden>→</span>
-                <span>API cost</span>
+              <div className="mx-auto max-w-md text-[15px] text-ink">
+                <div className="mx-auto w-fit rounded-xl border border-card-border bg-box px-8 py-5 font-medium">One system</div>
+                <svg viewBox="0 0 400 70" className="mx-auto h-16 w-full text-label" fill="none" aria-hidden="true">
+                  <path d="M180 8 L105 56 M220 8 L295 56 M106 44 L105 56 L118 55 M282 55 L295 56 L294 44" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <div className="grid grid-cols-2 gap-5">
+                  <div className="flex flex-col items-center gap-3 rounded-xl bg-box p-5"><BellRing size={22} strokeWidth={1.5} className="text-emerald-600 dark:text-emerald-400" /><span>Quick alerts</span></div>
+                  <div className="flex flex-col items-center gap-3 rounded-xl bg-box p-5"><Coins size={22} strokeWidth={1.5} className="text-label" /><span>API cost</span></div>
+                </div>
               </div>
             </Diagram>
           }
@@ -165,9 +168,7 @@ export default function AeSaeCaseStudy({ animateEntrance = true }: { animateEntr
                 {["Nurse saves a value", "System checks", "Score builds", "Alert"].map(
                   (step, i) => (
                     <div key={step} className="rounded-xl border border-card-border bg-box p-5">
-                      <p className="mb-5 text-[12px] text-accent">
-                        0{i + 1} {i < 3 ? "→" : "✓"}
-                      </p>
+                      <p className="mb-5 text-[14px] text-ink"><span className="text-emerald-600 dark:text-emerald-400">0</span>{i + 1}<span className="ml-2 text-label" aria-hidden>{i < 3 ? "→" : "✓"}</span></p>
                       <p className="text-[15px] text-ink">{step}</p>
                     </div>
                   ),
@@ -219,19 +220,16 @@ export default function AeSaeCaseStudy({ animateEntrance = true }: { animateEntr
           heading="Part 2. The AI is called based on risk, not on every field saved"
           body="Calling the AI on every saved field means about 40,000 calls per trial. Calling it once per finished visit, plus extra checks for watched patients, is about 2,200. That is 94.5% fewer. For watched patients, saving a flagged value triggers an instant check, so the alert comes within seconds."
           media={
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="sae-call-comparison grid gap-5 sm:grid-cols-2">
               {[
                 ["Every field", "40,000", "calls per trial"],
-                ["By visit, with extra checks", "~2,200", "94.5% fewer"],
-              ].map(([title, value, detail]) => (
-                <div
-                  key={title}
-                  className="flex min-h-56 flex-col justify-between gap-6 rounded-[14px] border border-card-border bg-card p-6"
-                >
-                  <p className="text-[15px] text-label">{title}</p>
-                  <p className="text-[36px] font-semibold tracking-tight text-ink">{value}</p>
-                  <p className="text-[15px] text-body">{detail}</p>
-                </div>
+                ["By visit, with extra checks", "~2,200", "calls per trial · 94.5% fewer"],
+              ].map(([title, value, detail], i) => (
+                <BeamCard key={title} color={i === 0 ? "red" : "green"} theme={dark ? "dark" : "light"} delay={i * 2.5}>
+                  <p className="sae-call-label">{title}</p>
+                  <p className="sae-call-value">{value}</p>
+                  <p className="sae-call-detail">{detail}</p>
+                </BeamCard>
               ))}
             </div>
           }
@@ -256,7 +254,7 @@ export default function AeSaeCaseStudy({ animateEntrance = true }: { animateEntr
               <div
                 key={item.value}
                 data-impact-card
-                className={`flex flex-col gap-6 rounded-[14px] border bg-card p-6 ${i === 0 ? "border-accent sm:col-span-2 sm:p-10" : "border-card-border"}`}
+                className={`flex flex-col gap-6 rounded-[14px] bg-card p-6 ${i === 0 ? "border-0 sm:col-span-2 sm:p-10" : "border border-card-border"}`}
               >
                 <p
                   className={`${i === 0 ? "text-[26px]" : "text-[20px]"} font-medium leading-[1.3] text-ink`}
@@ -268,23 +266,7 @@ export default function AeSaeCaseStudy({ animateEntrance = true }: { animateEntr
             ))}
           </div>
         </Block>
-        <Block>
-          <a
-            href="#"
-            data-fade
-            className="group flex flex-col gap-5 rounded-[14px] border border-card-border bg-card p-6 sm:flex-row sm:items-center"
-          >
-            <div className="flex flex-1 flex-col gap-1">
-              <p className="text-[18px] font-semibold text-ink">Want the full process?</p>
-              <p className="text-[16px] leading-[1.5] text-label">
-                Research, system design, rejected directions, and every decision documented.
-              </p>
-            </div>
-            <span className="inline-flex h-9 shrink-0 items-center self-start rounded-full bg-btn px-4 text-[13px] font-semibold text-btn-text sm:self-center">
-              View full process →
-            </span>
-          </a>
-        </Block>
+
       </main>
     </div>
   );
