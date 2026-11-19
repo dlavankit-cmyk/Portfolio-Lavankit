@@ -370,3 +370,33 @@ html.has-custom-cursor * {
   scrollbar-width: none;
 }
 .testimonial-ticker::-webkit-scrollbar { display: none; }
+
+/* Keep the gallery mounted so leaving reverses its reveal animation. */
+.hover-photo-gallery {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 340ms ease, visibility 0s linear 340ms;
+}
+.hover-photo-gallery[data-open="true"] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 340ms ease, visibility 0s;
+}
+.hover-photo-gallery > * {
+  filter: blur(6px);
+  translate: 0 7px;
+  transition: filter 420ms cubic-bezier(.22,1,.36,1), translate 420ms cubic-bezier(.22,1,.36,1);
+}
+.hover-photo-gallery[data-open="true"] > * {
+  filter: blur(0);
+  translate: 0 0;
+}
+.hover-photo-card {
+  transition: transform 420ms cubic-bezier(.22,1,.36,1), box-shadow 420ms ease, z-index 240ms linear;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-photo-gallery, .hover-photo-gallery > *, .hover-photo-card { transition: none; }
+  .hover-photo-gallery > * { translate: none; filter: none; }
+}

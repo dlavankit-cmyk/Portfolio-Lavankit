@@ -11,6 +11,7 @@ export function HoverReveal({ children, images, caption }: {
 }) {
   const [open, setOpen] = useState(false);
   const [front, setFront] = useState(0);
+  const [ratio, setRatio] = useState(4 / 3);
   const [pos, setPos] = useState({ left: 0, top: 0, below: false });
   const trigger = useRef<HTMLButtonElement>(null);
   const gallery = useRef<HTMLDivElement>(null);
@@ -25,8 +26,8 @@ export function HoverReveal({ children, images, caption }: {
     keepOpen();
     const r = trigger.current?.getBoundingClientRect();
     if (!r) return;
-    const width = Math.min(images.length > 1 ? 350 : 250, window.innerWidth - 24);
-    const height = images.length > 1 ? width * .72 : width * .75 + (caption ? 32 : 0);
+    const width = Math.min(images.length > 1 ? 140 : 100, window.innerWidth - 24);
+    const height = images.length > 1 ? width * .72 : width / ratio + (caption ? 32 : 0);
     setPos({ left: Math.max(12, Math.min(r.left + r.width / 2 - width / 2, window.innerWidth - width - 12)), top: r.top < height + 26 ? r.bottom : r.top, below: r.top < height + 26 });
     if (!open) setFront(0);
     setOpen(true);
@@ -57,17 +58,17 @@ export function HoverReveal({ children, images, caption }: {
       onMouseEnter={show} onMouseLeave={closeSoon} onFocus={show} onBlur={closeSoon}
       onClick={show}>{children}</button>
     {createPortal(<div ref={gallery} id={id} role="group" aria-label={`Photos: ${typeof children === "string" ? children : "About me"}`}
-      hidden={!open} onMouseEnter={keepOpen} onMouseLeave={closeSoon} onFocus={keepOpen} onBlur={closeSoon}
-      className="fixed z-50" style={{ left: pos.left, top: pos.top, width: `min(${images.length > 1 ? 350 : 250}px, calc(100vw - 24px))`, paddingTop: pos.below ? 18 : 0, paddingBottom: pos.below ? 0 : 18, transform: pos.below ? undefined : "translateY(-100%)" }}>
-      <div className="relative" style={{ aspectRatio: images.length > 1 ? "1.4" : "4/3" }}>
+      aria-hidden={!open} inert={!open} onMouseEnter={keepOpen} onMouseLeave={closeSoon} onFocus={keepOpen} onBlur={closeSoon}
+      className="hover-photo-gallery fixed z-50" data-open={open} style={{ left: pos.left, top: pos.top, width: `min(${images.length > 1 ? 140 : 100}px, calc(100vw - 24px))`, paddingTop: pos.below ? 12 : 0, paddingBottom: pos.below ? 0 : 12, transform: pos.below ? undefined : "translateY(-100%)" }}>
+      <div className="relative" style={{ aspectRatio: images.length > 1 ? "1.4" : String(ratio) }}>
         {images.map((photo, i) => <button key={photo.src} type="button" aria-label={`Bring photo ${i + 1} to front: ${photo.alt}`}
           onMouseEnter={() => setFront(i)} onFocus={() => setFront(i)} onClick={() => setFront(i)}
-          className="absolute cursor-pointer rounded-xl border-0 bg-card p-1.5 shadow-[0_12px_32px_-10px_rgba(0,0,0,0.55)] transition-transform duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none"
-          style={{ width: images.length > 1 ? "72%" : "100%", height: images.length > 1 ? "76%" : "100%", left: images.length > 1 ? `${i * (26 / Math.max(images.length - 1, 1))}%` : 0, top: images.length > 1 ? `${i * (21 / Math.max(images.length - 1, 1))}%` : 0, zIndex: front === i ? 10 : images.length - i, transform: `rotate(${images.length > 1 ? [-4, 3, -2][i % 3] : -2}deg) scale(${front === i ? 1.02 : 1})` }}>
-          <img src={photo.src} alt={photo.alt} draggable={false} className="block size-full rounded-lg object-cover" />
+          className="hover-photo-card absolute cursor-pointer rounded-md border border-line bg-card p-px shadow-[0_6px_16px_-6px_rgba(0,0,0,0.4)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          style={{ width: images.length > 1 ? "72%" : "100%", height: images.length > 1 ? "76%" : "100%", left: images.length > 1 ? `${i * (26 / Math.max(images.length - 1, 1))}%` : 0, top: images.length > 1 ? `${i * (21 / Math.max(images.length - 1, 1))}%` : 0, zIndex: front === i ? 10 : images.length - i, transform: `rotate(${images.length > 1 ? [-4, 3, -2][i % 3] : -2}deg) translateY(${front === i ? -2 : 0}px) scale(${front === i ? 1.03 : 1})` }}>
+          <img src={photo.src} alt={photo.alt} draggable={false} onLoad={(e) => { if (images.length === 1) setRatio(e.currentTarget.naturalWidth / e.currentTarget.naturalHeight); }} className="block size-full rounded-[4px] object-contain" />
         </button>)}
       </div>
-      {caption && <p className="mt-3 text-center text-[14px] font-medium text-ink">{caption}</p>}
+      {caption && <p className="mt-2 text-center text-[14px] font-medium text-ink">{caption}</p>}
     </div>, document.body)}
   </>;
 }
