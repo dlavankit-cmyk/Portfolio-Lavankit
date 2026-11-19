@@ -4,6 +4,7 @@ import { Testimonials } from "../components/Testimonials";
 import { HoverReveal } from "../components/HoverReveal";
 import { NoiseTexture } from "../components/NoiseTexture";
 import { PlanetCanvas } from "../components/PlanetCanvas";
+import { InkHero } from "../components/InkHero";
 import { MediaAsset } from "../components/MediaAsset";
 import type { PlanetKind } from "../intro/dither/objects";
 import { Typewriter } from "../components/Typewriter";
@@ -303,15 +304,7 @@ export default function Home({
       <main className="relative z-10 mx-auto flex w-full flex-col gap-10 px-5 pt-[130px] pb-10 md:w-[60%] md:px-0">
         {/* Banner */}
         <div data-fade className={`${blurClass} flex h-[120px] items-center overflow-hidden rounded-[12px] bg-box sm:h-[190px]`}>
-          <MediaAsset
-            type="image"
-            src={img.banner}
-            alt=""
-            className="h-[105%] w-full"
-            mediaClassName="size-full object-cover"
-            loading="eager"
-            fetchPriority="high"
-          />
+          <InkHero src={img.banner} alt="A person at a desk with a computer in a grassy landscape at sunset" />
         </div>
 
         {/* Intro */}
