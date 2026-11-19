@@ -1,16 +1,5 @@
+/* Only the pixels painted by cursor movement are visible; the image stays colorful. */
 .ink-hero__canvas {
-  background: var(--page);
-  opacity: 0;
-  transition: opacity 320ms ease;
-}
-.ink-hero[data-ink-ready="true"] .ink-hero__canvas { opacity: 1; }
-.ink-hero[data-ink-ready="false"] img { filter: grayscale(1) contrast(1.2); }
-@media (hover: hover) {
-  .ink-hero:hover .ink-hero__canvas { opacity: 0; }
-  .ink-hero:hover img { filter: none; }
-}
-.ink-hero:focus-within .ink-hero__canvas { opacity: 0; }
-.ink-hero:focus-within img { filter: none; }
-@media (prefers-reduced-motion: reduce) {
-  .ink-hero__canvas { transition: none; }
+  background: transparent;
+  pointer-events: none;
 }
