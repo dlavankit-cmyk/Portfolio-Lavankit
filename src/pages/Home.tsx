@@ -24,16 +24,43 @@ const img = {
     "https://res.cloudinary.com/vwlr2h8r/image/upload/v1794764699/ChatGPT_Image_Sep_25_2026_04_58_29_PM.jpg",
 };
 
-/** Temporary hover images until the final ones are supplied. */
 const hoverImg = {
-  clinical:
-    "https://images.unsplash.com/photo-1766297246931-7b861269dab0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600",
-  award:
-    "https://images.unsplash.com/photo-1791245024904-f8dbc1621100?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600",
-  learning:
-    "https://images.unsplash.com/photo-1760840414864-b46ec125487b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600",
-  football:
-    "https://images.unsplash.com/photo-1486286701208-1d58e9338013?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600",
+  "clinical": [
+    {
+      "src": "https://res.cloudinary.com/vwlr2h8r/image/upload/v1795071588/Akyrian_Teams_Oct_2025.jpg",
+      "alt": "Akyrian team"
+    }
+  ],
+  "award": [
+    {
+      "src": "https://res.cloudinary.com/vwlr2h8r/image/upload/v1795071584/1680068709404.jpg",
+      "alt": "IIT BHU All India Design Rush"
+    },
+    {
+      "src": "https://res.cloudinary.com/vwlr2h8r/image/upload/v1795071591/Hackathon_Gathering_in_a_Tech_Conference_Room.png",
+      "alt": "Hackathon gathering in a conference room"
+    }
+  ],
+  "football": [
+    {
+      "src": "https://res.cloudinary.com/vwlr2h8r/image/upload/v1795071580/1000019069.jpg",
+      "alt": "Football memories"
+    },
+    {
+      "src": "https://res.cloudinary.com/vwlr2h8r/image/upload/v1795071598/Thoughtful_Portrait_on_Green_Turf.png",
+      "alt": "Portrait on the football turf"
+    },
+    {
+      "src": "https://res.cloudinary.com/vwlr2h8r/image/upload/v1795071594/It_was_a_crazy_crazy_fun_morning_with_u_all_we_hope_u_guys_had_fun.._1.jpg",
+      "alt": "A fun morning with the football group"
+    }
+  ],
+  "learning": [
+    {
+      "src": "https://res.cloudinary.com/vwlr2h8r/image/upload/f_jpg,q_auto,w_700/v1795072844/IMG_1727.heic",
+      "alt": "A self-learning human model"
+    }
+  ]
 };
 
 /** Fill these in to activate the footer links. */
@@ -330,25 +357,25 @@ export default function Home({
           <div className="text-[14px] leading-[23.8px] text-body">
             <p data-fade className="tracking-[0.14px]">
               {`I am a designer who wants to know how things work. I currently work in the `}
-              <HoverReveal image={hoverImg.clinical} alt="Clinical research">
+              <HoverReveal images={hoverImg.clinical} caption="team">
                 clinical trial industry
               </HoverReveal>
               {`, and I won the `}
-              <HoverReveal image={hoverImg.award} alt="Design award">
+              <HoverReveal images={hoverImg.award}>
                 IIT BHU All India Design Rush
               </HoverReveal>
               {` along the way. I love the technical side of things. Lately, that means LLMs, how they are built, and where AI is heading next. Psychology pulls me in just as much. `}
             </p>
             <p data-fade className="mt-6 tracking-[0.14px]">
               {`I keep learning all of this so I can call myself `}
-              <HoverReveal image={hoverImg.learning} alt="Open book">
+              <HoverReveal images={hoverImg.learning}>
                 a self-learning human model
               </HoverReveal>
               . My syllabus is whatever I get curious about.
             </p>
             <p data-fade className="mt-6">
               {`Outside of work, a free evening usually ends up on a `}
-              <HoverReveal image={hoverImg.football} alt="Football on grass">
+              <HoverReveal images={hoverImg.football}>
                 football
               </HoverReveal>
               {` ground. If I don’t have a reason to play, I will find one.`}
