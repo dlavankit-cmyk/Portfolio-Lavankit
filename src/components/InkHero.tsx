@@ -7,9 +7,10 @@ const bayer2 = (x: number, y: number) => {
   return value - Math.floor(value);
 };
 const bayer4 = (x: number, y: number) => bayer2(x * 0.5, y * 0.5) * 0.25 + bayer2(x, y);
-type Trace = { x: number; y: number; time: number };
+type Trace = { x: number; y: number; time: number; distance: number; stroke: number };
+const TRAIL_LIFETIME = 650;
 
-/** A fine ink trail painted by pointer movement over the untouched color photograph. */
+/** A temporary liquid ribbon reveals the ink image only along the moving pointer path. */
 export function InkHero({ src, alt }: { src: string; alt: string }) {
   const host = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -35,6 +36,7 @@ export function InkHero({ src, alt }: { src: string; alt: string }) {
     let dpr = 1;
     let traces: Trace[] = [];
     let previous: Trace | null = null;
+    let stroke = 0;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     const clear = () => {
@@ -43,40 +45,63 @@ export function InkHero({ src, alt }: { src: string; alt: string }) {
     };
     const render = (time: number) => {
       frame = 0;
-      traces = traces.filter((point) => time - point.time < 1400);
+      traces = traces.filter((point) => time - point.time < TRAIL_LIFETIME);
       clear();
-      if (!prepared || !traces.length) return;
+      if (!prepared || !traces.length || reduced.matches) return;
       const brush = mask.getContext("2d");
       if (!brush) return;
       brush.setTransform(1, 0, 0, 1, 0, 0);
       brush.clearRect(0, 0, mask.width, mask.height);
       brush.setTransform(dpr, 0, 0, dpr, 0, 0);
+      brush.fillStyle = "#fff";
+      // One continuous ribbon, with just enough edge softness to avoid a cutout look.
+      // Its width collapses with age; holding the pointer still cannot keep it open.
+      brush.filter = "blur(1px)";
+      const groups = new Map<number, Trace[]>();
       for (const point of traces) {
-        const age = Math.max(0, time - point.time);
-        const fadeIn = reduced.matches ? 1 : Math.min(1, age / 90);
-        const fadeOut = 1 - Math.min(1, Math.max(0, age - 350) / 1050);
-        const opacity = fadeIn * fadeOut * fadeOut;
-        // Overlapping wisps form an irregular feathered trail, never an outlined circle.
-        for (const [dx, dy, radius, weight] of [
-          [0, 0, 23, 0.8],
-          [-8, 5, 19, 0.45],
-          [7, -6, 18, 0.45],
-        ]) {
-          const x = point.x + dx;
-          const y = point.y + dy;
-          const gradient = brush.createRadialGradient(x, y, 0, x, y, radius);
-          gradient.addColorStop(0, `rgba(255,255,255,${opacity * weight})`);
-          gradient.addColorStop(0.35, `rgba(255,255,255,${opacity * weight * 0.7})`);
-          gradient.addColorStop(1, "rgba(255,255,255,0)");
-          brush.fillStyle = gradient;
-          brush.fillRect(x - radius, y - radius, radius * 2, radius * 2);
-        }
+        const group = groups.get(point.stroke) || [];
+        group.push(point);
+        groups.set(point.stroke, group);
       }
+      for (const points of groups.values()) {
+        if (points.length < 2) continue;
+        const left: { x: number; y: number }[] = [];
+        const right: { x: number; y: number }[] = [];
+        points.forEach((point, index) => {
+          const before = points[Math.max(0, index - 2)];
+          const after = points[Math.min(points.length - 1, index + 2)];
+          const dx = after.x - before.x;
+          const dy = after.y - before.y;
+          const length = Math.hypot(dx, dy) || 1;
+          const age = Math.max(0, time - point.time);
+          const opening = Math.min(1, age / 45);
+          const closing = Math.pow(Math.max(0, 1 - age / TRAIL_LIFETIME), 0.85);
+          const taper = Math.min(1, (index + 1) / 5, (points.length - index) / 5);
+          const flow = Math.sin(point.distance * 0.055 - age * 0.003);
+          const radius = Math.min(29, height * 0.15) * opening * closing * taper;
+          const bend = radius * flow * 0.18;
+          const nx = -dy / length;
+          const ny = dx / length;
+          left.push({ x: point.x + nx * (radius + bend), y: point.y + ny * (radius + bend) });
+          right.push({ x: point.x - nx * (radius - bend), y: point.y - ny * (radius - bend) });
+        });
+        const outline = [...left, ...right.reverse()];
+        const last = outline[outline.length - 1];
+        brush.beginPath();
+        brush.moveTo((last.x + outline[0].x) / 2, (last.y + outline[0].y) / 2);
+        outline.forEach((point, index) => {
+          const next = outline[(index + 1) % outline.length];
+          brush.quadraticCurveTo(point.x, point.y, (point.x + next.x) / 2, (point.y + next.y) / 2);
+        });
+        brush.closePath();
+        brush.fill();
+      }
+      brush.filter = "none";
       ctx.drawImage(ink, 0, 0);
       ctx.globalCompositeOperation = "destination-in";
       ctx.drawImage(mask, 0, 0);
       ctx.globalCompositeOperation = "source-over";
-      if (!reduced.matches) frame = requestAnimationFrame(render);
+      frame = requestAnimationFrame(render);
     };
     const prepare = () => {
       if (disposed || !original.complete || !original.naturalWidth) return;
@@ -146,27 +171,29 @@ export function InkHero({ src, alt }: { src: string; alt: string }) {
       }
     };
     const move = (event: PointerEvent) => {
-      if (!prepared || event.pointerType === "touch") return;
+      if (!prepared || event.pointerType === "touch" || reduced.matches) return;
       const box = wrapper.getBoundingClientRect();
-      const point = {
-        x: event.clientX - box.left,
-        y: event.clientY - box.top,
-        time: performance.now(),
-      };
-      // Ignore tiny pointer jitter; entering or resting alone does not trigger the effect.
-      if (previous && Math.hypot(point.x - previous.x, point.y - previous.y) < 1) return;
-      if (reduced.matches) traces = [];
-      const distance = previous ? Math.hypot(point.x - previous.x, point.y - previous.y) : 0;
-      const steps = Math.min(100, Math.max(1, Math.ceil(distance / 4)));
+      const time = performance.now();
+      // A new gesture must never draw a bridge from an old, stationary cursor position.
+      if (previous && time - previous.time > 250) previous = null;
+      if (!previous) stroke++;
+      const x = event.clientX - box.left;
+      const y = event.clientY - box.top;
+      const distance = previous ? Math.hypot(x - previous.x, y - previous.y) : 0;
+      if (previous && distance < 1) return;
+      const point: Trace = { x, y, time, distance: (previous?.distance || 0) + distance, stroke };
+      const steps = Math.min(120, Math.max(1, Math.ceil(distance / 3)));
       for (let step = 1; step <= steps; step++) {
         const t = step / steps;
         traces.push({
           x: previous ? previous.x + (point.x - previous.x) * t : point.x,
           y: previous ? previous.y + (point.y - previous.y) * t : point.y,
-          time: point.time,
+          time: previous ? previous.time + (time - previous.time) * t : time,
+          distance: previous ? previous.distance + distance * t : point.distance,
+          stroke,
         });
       }
-      traces = traces.slice(-300);
+      traces = traces.slice(-600);
       previous = point;
       if (!frame) frame = requestAnimationFrame(render);
     };
