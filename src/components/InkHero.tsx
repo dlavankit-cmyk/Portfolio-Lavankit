@@ -54,9 +54,9 @@ export function InkHero({ src, alt }: { src: string; alt: string }) {
       brush.clearRect(0, 0, mask.width, mask.height);
       brush.setTransform(dpr, 0, 0, dpr, 0, 0);
       brush.fillStyle = "#fff";
-      // One continuous ribbon, with just enough edge softness to avoid a cutout look.
+      // Feather the reveal mask, preserving the sharp detail of the image underneath.
       // Its width collapses with age; holding the pointer still cannot keep it open.
-      brush.filter = "blur(1px)";
+      brush.filter = `blur(${Math.max(6, Math.min(10, height * 0.045)) * dpr}px)`;
       const groups = new Map<number, Trace[]>();
       for (const point of traces) {
         const group = groups.get(point.stroke) || [];
@@ -99,7 +99,9 @@ export function InkHero({ src, alt }: { src: string; alt: string }) {
       brush.filter = "none";
       ctx.drawImage(ink, 0, 0);
       ctx.globalCompositeOperation = "destination-in";
+      ctx.globalAlpha = 0.88;
       ctx.drawImage(mask, 0, 0);
+      ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = "source-over";
       frame = requestAnimationFrame(render);
     };

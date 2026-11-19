@@ -26,7 +26,7 @@ export function HoverReveal({ children, images, caption }: {
     keepOpen();
     const r = trigger.current?.getBoundingClientRect();
     if (!r) return;
-    const width = Math.min(images.length > 1 ? 140 : 100, window.innerWidth - 24);
+    const width = Math.min(images.length > 1 ? 175 : 125, window.innerWidth - 24);
     const height = images.length > 1 ? width * .72 : width / ratio + (caption ? 32 : 0);
     setPos({ left: Math.max(12, Math.min(r.left + r.width / 2 - width / 2, window.innerWidth - width - 12)), top: r.top < height + 26 ? r.bottom : r.top, below: r.top < height + 26 });
     if (!open) setFront(0);
@@ -59,7 +59,7 @@ export function HoverReveal({ children, images, caption }: {
       onClick={show}>{children}</button>
     {createPortal(<div ref={gallery} id={id} role="group" aria-label={`Photos: ${typeof children === "string" ? children : "About me"}`}
       aria-hidden={!open} inert={!open} onMouseEnter={keepOpen} onMouseLeave={closeSoon} onFocus={keepOpen} onBlur={closeSoon}
-      className="hover-photo-gallery fixed z-50" data-open={open} style={{ left: pos.left, top: pos.top, width: `min(${images.length > 1 ? 140 : 100}px, calc(100vw - 24px))`, paddingTop: pos.below ? 12 : 0, paddingBottom: pos.below ? 0 : 12, transform: pos.below ? undefined : "translateY(-100%)" }}>
+      className="hover-photo-gallery fixed z-50" data-open={open} style={{ left: pos.left, top: pos.top, width: `min(${images.length > 1 ? 175 : 125}px, calc(100vw - 24px))`, paddingTop: pos.below ? 12 : 0, paddingBottom: pos.below ? 0 : 12, transform: pos.below ? undefined : "translateY(-100%)" }}>
       <div className="relative" style={{ aspectRatio: images.length > 1 ? "1.4" : String(ratio) }}>
         {images.map((photo, i) => <button key={photo.src} type="button" aria-label={`Bring photo ${i + 1} to front: ${photo.alt}`}
           onMouseEnter={() => setFront(i)} onFocus={() => setFront(i)} onClick={() => setFront(i)}
