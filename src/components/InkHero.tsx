@@ -8,7 +8,7 @@ const bayer2 = (x: number, y: number) => {
 };
 const bayer4 = (x: number, y: number) => bayer2(x * 0.5, y * 0.5) * 0.25 + bayer2(x, y);
 type Trace = { x: number; y: number; time: number; distance: number; stroke: number };
-const TRAIL_LIFETIME = 650;
+const TRAIL_LIFETIME = 400;
 
 /** A temporary liquid ribbon reveals the ink image only along the moving pointer path. */
 export function InkHero({ src, alt }: { src: string; alt: string }) {
@@ -79,7 +79,7 @@ export function InkHero({ src, alt }: { src: string; alt: string }) {
           const taper = Math.min(1, (index + 1) / 5, (points.length - index) / 5);
           const flow = Math.sin(point.distance * 0.055 - age * 0.003);
           const radius = Math.min(36, height * 0.19) * opening * closing * taper;
-          const bend = radius * flow * 0.18;
+          const bend = radius * flow * 0.04;
           const nx = -dy / length;
           const ny = dx / length;
           left.push({ x: point.x + nx * (radius + bend), y: point.y + ny * (radius + bend) });
